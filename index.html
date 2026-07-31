@@ -1,16 +1,16 @@
-    !DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Lion Escape 3D - Fixed Aspect Ratio</title>
+    <title>Lion Escape 3D - Animal Stamp Quest</title>
     <!-- โหลด Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         
         body {
-            background-color: #1a1a2e; /* ฉากหลังภายนอกสไตล์ดาร์ก ช่วยให้ตัวเกมโดดเด่น */
+            background-color: #1a1a2e;
             font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
             overflow: hidden;
             display: flex;
@@ -20,13 +20,12 @@
             width: 100vw;
         }
 
-        /* ★ กรอบจำลองหน้าจอเกมแบบล็อคสัดส่วนคงที่ (Fixed Aspect Ratio 9:16) ★ */
         #game-container {
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 500px; /* จำกัดความกว้างไม่ให้ใหญ่เกินไปบนจอคอม */
-            aspect-ratio: 9 / 16; /* ล็อคสัดส่วนฉากคงที่ */
+            max-width: 500px;
+            aspect-ratio: 9 / 16;
             background-color: #70d6ff;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
             overflow: hidden;
@@ -71,17 +70,18 @@
             padding: 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             pointer-events: auto;
             width: 100%;
         }
 
         .btn {
-            width: 75px; height: 75px;
+            width: 65px; height: 65px;
             background: #ff7675;
             border: 4px solid #fff;
             border-radius: 50%;
             color: white;
-            font-size: 32px;
+            font-size: 26px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -90,12 +90,14 @@
             touch-action: manipulation;
         }
         .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #d63031; }
+        .btn-jump { background: #fdcb6e; box-shadow: 0 5px 0 #e17055; font-size: 15px; font-weight: bold; }
+        .btn-jump:active { box-shadow: 0 2px 0 #e17055; }
 
         .overlay-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -106,21 +108,55 @@
 
         .card {
             background: #fff;
-            padding: 30px 20px;
+            padding: 25px 20px;
             border-radius: 25px;
             border: 5px dashed #f39c12;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             animation: popIn 0.4s ease-out;
-            width: 85%;
+            width: 88%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        .card h1 { color: #e67e22; margin-bottom: 10px; font-size: 24px; }
-        .card p { font-size: 15px; color: #444; margin: 6px 0; }
+        .card h1 { color: #e67e22; margin-bottom: 8px; font-size: 22px; }
+        .card p { font-size: 14px; color: #444; margin: 6px 0; line-height: 1.4; }
         
+        .story-box {
+            background: #fff8e7;
+            border: 2px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 10px 12px;
+            margin: 10px 0;
+            color: #d35400;
+            font-size: 13.5px;
+            font-weight: 500;
+        }
+
+        .stamp-box {
+            background: #e8f8f5;
+            border: 3px dashed #2ecc71;
+            border-radius: 20px;
+            padding: 12px;
+            margin: 12px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lion-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #f39c12;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            object-fit: cover;
+            margin-bottom: 5px;
+        }
+
         .action-btn {
-            margin-top: 18px;
-            padding: 14px 32px;
-            font-size: 18px;
+            margin-top: 10px;
+            padding: 12px 28px;
+            font-size: 16px;
             font-weight: bold;
             color: white;
             background: #2ecc71;
@@ -128,17 +164,23 @@
             border-radius: 40px;
             box-shadow: 0 5px 0 #27ae60;
             cursor: pointer;
+            width: 100%;
         }
         .action-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #27ae60; }
         
+        .redirect-btn {
+            background: #0984e3;
+            box-shadow: 0 5px 0 #0984e3;
+            margin-top: 8px;
+        }
+        .redirect-btn:active { box-shadow: 0 2px 0 #0984e3; }
+
         @keyframes popIn { 0% { transform: scale(0.6); opacity: 0;} 100% { transform: scale(1); opacity: 1;} }
     </style>
 </head>
 <body>
 
-    <!-- Container หลักที่ล็อคอัตราส่วนเกม -->
     <div id="game-container">
-        
         <div id="game-ui">
             <div class="top-bar">
                 <div class="badge">🥩 <span id="meat-count">0</span> / 15</div>
@@ -146,31 +188,155 @@
             </div>
             <div class="controls">
                 <div class="btn" id="btn-left">◀</div>
+                <div class="btn btn-jump" id="btn-jump">JUMP</div>
                 <div class="btn" id="btn-right">▶</div>
             </div>
         </div>
 
+        <!-- หน้าเริ่มต้นเกมพร้อม Story และรูปภาพสิงโต -->
         <div id="start-screen" class="overlay-screen">
             <div class="card">
+                <img src="img/lionlogo.png" alt="Lion Logo" class="lion-logo">
                 <h1>Lion Meat Hunt 🦁🥩</h1>
-                <p>ช่วยสิงโตเก็บเนื้อให้ครบ <b>15 ชิ้น</b> ในเวลา <b>30 วินาที</b>!</p>
-                <p style="font-size: 13px; color: #e74c3c; font-weight: bold;">⚠️ ระวังหินแหลมอันตรายด้วยนะ!</p>
-                <button class="action-btn" onclick="startGame()">เริ่มลุยเลย! 🚀</button>
+                
+                <div class="story-box">
+                    📖 <b>เรื่องราว:</b><br>
+                    "พี่สิงโตกำลังหิวมากๆ เลย! จงช่วยพี่สิงโตวิ่งออกตามหาอาหารชิ้นโปรดให้ครบ 15 ชิ้นภายในเวลา 30 วินาทีนะ!"
+                </div>
+
+                <p style="background: #f1f2f6; padding: 6px; border-radius: 10px; font-size: 12px;">
+                    🎮 <b>ปุ่มควบคุมคอมพิวเตอร์:</b><br>
+                    • <b>A / D</b> หรือ <b>◀ / ▶</b> : หลบซ้าย-ขวา<br>
+                    • <b>W</b> / <b>Spacebar</b> / <b>▲</b> : กระโดดข้ามหิน
+                </p>
+
+                <button class="action-btn" onclick="startGame()">เริ่มภารกิจเลย! 🚀</button>
             </div>
         </div>
 
+        <!-- หน้าจบเกม (ชนะ/แพ้) -->
         <div id="game-over" class="overlay-screen" style="display: none;">
             <div class="card">
                 <h1 id="result-title">เก่งมากเลย! 🎉</h1>
+                
+                <!-- ส่วนแสดงผลกรณี ชนะ ( Stamp Winner Zone ) -->
+                <div id="win-stamp-container" class="stamp-box" style="display: none;">
+                    <img src="img/lionlogo.png" alt="Lion Stamp" class="lion-logo" style="width: 80px; height: 80px;">
+                    <p style="color: #27ae60; font-weight: bold; font-size: 15px; margin-top: 5px;">
+                        🏆 ยินดีด้วย! คุณได้รับ<br><span style="font-size: 17px; color: #d35400;">Animal Stamp: Lion Zone</span>
+                    </p>
+                </div>
+
                 <p id="result-desc">เก็บเนื้อได้ครบแล้ว!</p>
                 <p>เนื้อที่เก็บได้: <b id="final-meat" style="color: #e67e22; font-size: 22px;">0</b> / 15 🥩</p>
+
+                <!-- ปุ่มเล่นอีกครั้ง -->
                 <button class="action-btn" onclick="restartGame()">เล่นอีกครั้ง 🔄</button>
+
+                <!-- ★ ปุ่มสำหรับกดแล้วลิงก์ไปหน้าอื่น (จะแสดงเฉพาะเมื่อเล่นชนะ) ★ -->
+                <button id="btn-redirect" class="action-btn redirect-btn" style="display: none;" onclick="goToNextPage()">
+                    ดูพาสปอร์ต 🎁
+                </button>
             </div>
         </div>
-
     </div>
 
     <script>
+        // --- AUDIO SYNTHESIZER SYSTEM ---
+        const AudioFX = {
+            ctx: null,
+            bgmInterval: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playEatSound() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            },
+            playJumpSound() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(450, this.ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.2);
+            },
+            playHitSound() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            },
+            playWinSound() {
+                if (!this.ctx) return;
+                const notes = [261.63, 329.63, 392.00, 523.25];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.1 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.1);
+                    osc.stop(this.ctx.currentTime + idx * 0.1 + 0.25);
+                });
+            },
+            startBGM() {
+                this.stopBGM();
+                if (!this.ctx) return;
+                const melody = [261, 293, 329, 349, 392, 349, 329, 293];
+                let step = 0;
+                this.bgmInterval = setInterval(() => {
+                    if (this.ctx.state === 'suspended') this.ctx.resume();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = melody[step % melody.length];
+                    gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.18);
+                    step++;
+                }, 200);
+            },
+            stopBGM() {
+                if (this.bgmInterval) {
+                    clearInterval(this.bgmInterval);
+                    this.bgmInterval = null;
+                }
+            }
+        };
+
         const container = document.getElementById('game-container');
 
         // --- 1. SET UP SCENE & CAMERA ---
@@ -178,7 +344,6 @@
         scene.background = new THREE.Color(0x70d6ff);
         scene.fog = new THREE.FogExp2(0x70d6ff, 0.008);
 
-        // คำนวณ Aspect Ratio อ้างอิงจากขนาดของ container
         const getContainerAspect = () => container.clientWidth / container.clientHeight;
 
         const camera = new THREE.PerspectiveCamera(38, getContainerAspect(), 0.1, 1000);
@@ -220,17 +385,6 @@
         road.position.y = 0.02;
         road.receiveShadow = true;
         scene.add(road);
-
-        for (let i = -0.5; i <= 0.5; i += 1) {
-            for (let z = 10; z > -200; z -= 8) {
-                const lineGeo = new THREE.PlaneGeometry(0.15, 4);
-                const lineMat = new THREE.MeshLambertMaterial({ color: 0xe76f51 });
-                const line = new THREE.Mesh(lineGeo, lineMat);
-                line.rotation.x = -Math.PI / 2;
-                line.position.set(i * laneWidth, 0.03, z);
-                scene.add(line);
-            }
-        }
 
         // เมฆ 3D
         const clouds = [];
@@ -381,17 +535,23 @@
         lionGroup.position.z = 0;
         scene.add(lionGroup);
 
-        // --- 5. GAME LOGIC ---
+        // --- 5. GAME LOGIC & JUMP PHYSICS ---
         let gameStarted = false;
         let isGameOver = false;
         let meatCollected = 0;
         let timeLeft = 30;
         let timerInterval = null;
         
-        const gameSpeed = 0.16;
+        const gameSpeed = 0.38; 
         let currentLane = 0;
         let objects = [];
         let spawnTimer = 0;
+
+        let lionY = 0;
+        let velocityY = 0;
+        const gravity = -0.018;
+        const jumpPower = 0.32;
+        let isGrounded = true;
 
         function createMeatMesh() {
             const meatGroup = new THREE.Group();
@@ -440,7 +600,7 @@
 
         function spawnObject() {
             const laneIndex = Math.floor(Math.random() * 3) - 1;
-            const isMeat = Math.random() < 0.70;
+            const isMeat = Math.random() < 0.72;
 
             const objGroup = new THREE.Group();
 
@@ -462,16 +622,28 @@
         // --- 6. CONTROLS ---
         function moveLeft() { if (gameStarted && !isGameOver && currentLane > -1) currentLane--; }
         function moveRight() { if (gameStarted && !isGameOver && currentLane < 1) currentLane++; }
+        function jump() {
+            if (gameStarted && !isGameOver && isGrounded) {
+                velocityY = jumpPower;
+                isGrounded = false;
+                AudioFX.playJumpSound();
+            }
+        }
 
         document.getElementById('btn-left').addEventListener('click', moveLeft);
         document.getElementById('btn-right').addEventListener('click', moveRight);
+        document.getElementById('btn-jump').addEventListener('click', jump);
 
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft();
-            if (e.key === 'ArrowRight' || e.key === 'd') moveRight();
+            const key = e.key.toLowerCase();
+            if (key === 'arrowleft' || key === 'a') moveLeft();
+            if (key === 'arrowright' || key === 'd') moveRight();
+            if (key === 'arrowup' || key === 'w' || key === ' ') {
+                e.preventDefault();
+                jump();
+            }
         });
 
-        // ปรับ Render ตามขนาด Container เมื่อขยับหน้าจอ
         window.addEventListener('resize', () => {
             camera.aspect = getContainerAspect();
             camera.updateProjectionMatrix();
@@ -483,10 +655,10 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            animTime += 0.1;
+            animTime += 0.2;
 
             clouds.forEach(c => {
-                c.position.x += 0.015;
+                c.position.x += 0.02;
                 if (c.position.x > 35) c.position.x = -35;
             });
 
@@ -498,29 +670,45 @@
 
             if (isGameOver) return;
 
-            // สไลด์เลน
             const targetX = currentLane * laneWidth;
-            lionGroup.position.x += (targetX - lionGroup.position.x) * 0.12;
-            
+            lionGroup.position.x += (targetX - lionGroup.position.x) * 0.25;
+
+            velocityY += gravity;
+            lionY += velocityY;
+
+            if (lionY <= 0) {
+                lionY = 0;
+                velocityY = 0;
+                isGrounded = true;
+            }
+
+            const bounceY = isGrounded ? Math.abs(Math.sin(animTime * 1.8)) * 0.22 : lionY;
+            lionGroup.position.y = bounceY;
+            lionGroup.rotation.x = isGrounded ? 0 : -velocityY * 0.8;
+
             camera.position.x = lionGroup.position.x;
-            camera.lookAt(lionGroup.position.x, 1.2, -10);
+            camera.lookAt(lionGroup.position.x, 1.2 + lionGroup.position.y * 0.3, -10);
 
-            // แอนิเมชันวิ่ง
-            lionGroup.position.y = Math.abs(Math.sin(animTime * 1.6)) * 0.18;
-            legFL.rotation.x = Math.sin(animTime * 1.6) * 0.6;
-            legFR.rotation.x = -Math.sin(animTime * 1.6) * 0.6;
-            legBL.rotation.x = -Math.sin(animTime * 1.6) * 0.6;
-            legBR.rotation.x = Math.sin(animTime * 1.6) * 0.6;
-            tailGroup.rotation.y = Math.sin(animTime * 2.2) * 0.5;
+            if (isGrounded) {
+                legFL.rotation.x = Math.sin(animTime * 1.8) * 0.8;
+                legFR.rotation.x = -Math.sin(animTime * 1.8) * 0.8;
+                legBL.rotation.x = -Math.sin(animTime * 1.8) * 0.8;
+                legBR.rotation.x = Math.sin(animTime * 1.8) * 0.8;
+            } else {
+                legFL.rotation.x = -0.5;
+                legFR.rotation.x = -0.5;
+                legBL.rotation.x = 0.5;
+                legBR.rotation.x = 0.5;
+            }
+            tailGroup.rotation.y = Math.sin(animTime * 2.5) * 0.6;
 
-            // เลื่อนฉากหลัง
             sceneryObjects.forEach(obj => {
                 obj.position.z += gameSpeed;
                 if (obj.position.z > 10) obj.position.z = -180;
             });
 
             spawnTimer++;
-            if (spawnTimer > 110) {
+            if (spawnTimer > 45) {
                 spawnObject();
                 spawnTimer = 0;
             }
@@ -530,24 +718,28 @@
                 obj.position.z += gameSpeed;
 
                 if (obj.userData.type === 'meat') {
-                    obj.rotation.y += 0.04;
+                    obj.rotation.y += 0.06;
                 }
 
                 const zDist = Math.abs(obj.position.z - lionGroup.position.z);
-                if (zDist < 0.85 && obj.userData.lane === currentLane) {
+                if (zDist < 1.0 && obj.userData.lane === currentLane) {
                     if (obj.userData.type === 'meat') {
                         meatCollected++;
                         document.getElementById('meat-count').innerText = meatCollected;
+                        AudioFX.playEatSound();
                         scene.remove(obj);
                         objects.splice(i, 1);
 
                         if (meatCollected >= 15) {
-                            endGame(true, "ชนะแล้ว! 🎉", "ยอดเยี่ยมมาก! เก็บเนื้อครบ 15 ชิ้นแล้วครับ");
+                            endGame(true, "ภารกิจสำเร็จ! 🎉", "พี่สิงโตอิ่มอภิมหาปรีดาแล้ว ขอบคุณมากๆ นะ!");
                             return;
                         }
                     } else if (obj.userData.type === 'rock') {
-                        endGame(false, "ชนหินแหลม! 💥", "พยายามหลบหินใหม่อีกครั้งนะครับ!");
-                        return;
+                        if (lionY < 1.1) {
+                            AudioFX.playHitSound();
+                            endGame(false, "ชนหินแหลม! 💥", "พยายามกระโดด (W / Space) หลบหินใหม่อีกครั้งนะ!");
+                            return;
+                        }
                     }
                 } else if (obj.position.z > 10) {
                     scene.remove(obj);
@@ -570,12 +762,14 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    endGame(false, "หมดเวลาแล้ว! ⏰", "เวลาหมดก่อนเก็บเนื้อครบ 15 ชิ้นครับ");
+                    endGame(false, "หมดเวลาแล้ว! ⏰", "พี่สิงโตยังไม่อิ่มเลย เวลาหมดซะก่อน");
                 }
             }, 1000);
         }
 
         function startGame() {
+            AudioFX.init();
+            AudioFX.startBGM();
             document.getElementById('start-screen').style.display = 'none';
             gameStarted = true;
             startTimer();
@@ -584,6 +778,22 @@
         function endGame(isWin, title, desc) {
             isGameOver = true;
             clearInterval(timerInterval);
+            AudioFX.stopBGM();
+
+            const winStampContainer = document.getElementById('win-stamp-container');
+            const btnRedirect = document.getElementById('btn-redirect');
+
+            if (isWin) {
+                AudioFX.playWinSound();
+                // แสดงแสตมป์ และปุ่มกดเปลี่ยนหน้ากรณีชนะ
+                winStampContainer.style.display = 'flex';
+                btnRedirect.style.display = 'block';
+            } else {
+                AudioFX.playHitSound();
+                // ซ่อนแสตมป์ และปุ่มกดเปลี่ยนหน้ากรณีแพ้
+                winStampContainer.style.display = 'none';
+                btnRedirect.style.display = 'none';
+            }
             
             document.getElementById('result-title').innerText = title;
             document.getElementById('result-desc').innerText = desc;
@@ -598,14 +808,34 @@
             meatCollected = 0;
             currentLane = 0;
             spawnTimer = 0;
+            lionY = 0;
+            velocityY = 0;
+            isGrounded = true;
             isGameOver = false;
 
             document.getElementById('meat-count').innerText = '0';
             document.getElementById('game-over').style.display = 'none';
 
             lionGroup.position.x = 0;
+            lionGroup.position.y = 0;
             camera.position.x = 0;
+            
+            AudioFX.startBGM();
             startTimer();
+        }
+
+        // ★ ฟังก์ชันสำหรับกดปุ่มแล้วเปลี่ยนไปหน้าอื่น ★
+        function goToNextPage() {
+            // -------------------------------------------------------------
+            // TODO: แก้ไข URL ด้านล่างนี้ให้เป็นลิงก์ปลายทางที่คุณต้องการ
+            // -------------------------------------------------------------
+            const targetUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1"; 
+            
+            // เปิดลิงก์ในหน้าต่างเดิม หรือเปลี่ยนหน้า
+            window.location.href = targetUrl;
+            
+            // หากต้องการให้เปิดใน Tab ใหม่ ให้ใช้บรรทัดนี้แทน:
+            // window.open(targetUrl, '_blank');
         }
 
         animate();
